@@ -70,6 +70,7 @@ Meteor.startup(function() {
 	
 	// Trigger photo take
 	booth.click(function() {
+		numPops++;
 		context.drawImage(video, 0, 0, 160, 120);
 		Photos.insert({url: canvas.toDataURL(), created: Date.now()});
 	});
@@ -81,6 +82,12 @@ var audio = (function audio() {
 	buzz.all().load();
 	return audio;
 })();
+
+var numPops = 1;
+
+function popable() {
+	return numPops;
+}
 
 function renderPhotos() {
 	
@@ -124,7 +131,13 @@ function renderPhotos() {
 		.attr('class', 'photo')
 		.attr('transform', 'translate(' + (width / 2) + ', ' + (height / 2) + ')')
 		.on('click', function(d) {
-			Photos.remove(d._id);
+			if (popable()) {
+				numPops--;
+				Photos.remove(d._id)
+			} else {
+				console.log("Take a pic to earn more pops!");
+			}
+
 		}).call(function(selection) {
 			if(!selection.empty()) audio.foam.stop().play();
 		});
